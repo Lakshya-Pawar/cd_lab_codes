@@ -1,0 +1,62 @@
+class WaterJugHillClimbing:
+    def __init__(self, jug1_capacity, jug2_capacity, target):
+        self.jug1_capacity = jug1_capacity
+        self.jug2_capacity = jug2_capacity
+        self.target = target
+
+    def heuristic(self, state):
+        """ Heuristic function: Absolute difference from target """
+        return abs(self.target - state[0]) + abs(self.target - state[1])
+
+    def get_successors(self, state):
+        """ Generate all possible next states """
+        jug1, jug2 = state
+        successors = []
+
+        # Fill Jug 1
+        successors.append((self.jug1_capacity, jug2))
+        # Fill Jug 2
+        successors.append((jug1, self.jug2_capacity))
+        # Empty Jug 1
+        successors.append((0, jug2))
+        # Empty Jug 2
+        successors.append((jug1, 0))
+        # Pour Jug 1 -> Jug 2
+        pour1to2 = min(jug1, self.jug2_capacity - jug2)
+        successors.append((jug1 - pour1to2, jug2 + pour1to2))
+        # Pour Jug 2 -> Jug 1
+        pour2to1 = min(jug2, self.jug1_capacity - jug1)
+        successors.append((jug1 + pour2to1, jug2 - pour2to1))
+
+        return successors
+
+    def solve(self):
+        """ Solve using Hill Climbing approach """
+        current_state = (0, 0)  # Start with both jugs empty
+        visited_states = set()
+        
+        while True:
+            visited_states.add(current_state)
+            print(f"Current state: {current_state}")
+
+            if self.target in current_state:
+                return f"Solution found: {current_state}"
+            
+            # Generate successors and sort them based on heuristic
+            successors = self.get_successors(current_state)
+            successors = [s for s in successors if s not in visited_states]  # Remove visited states
+            successors.sort(key=self.heuristic)  # Sort based on heuristic
+
+            if not successors or self.heuristic(successors[0]) >= self.heuristic(current_state):
+                return "No better state found, terminating (local maximum reached)."
+
+            current_state = successors[0]  # Move to the best successor
+
+# Taking user input
+jug1_capacity = int(input("Enter capacity of Jug 1: "))
+jug2_capacity = int(input("Enter capacity of Jug 2: "))
+target_amount = int(input("Enter target amount of water: "))
+
+solver = WaterJugHillClimbing(jug1_capacity, jug2_capacity, target_amount)
+result = solver.solve()
+print(result)

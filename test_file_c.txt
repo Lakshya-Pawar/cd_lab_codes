@@ -1,0 +1,59 @@
+#include <stdio.h>
+#include <string.h>
+
+#define MAX 100
+
+// Function to simulate Turing Machine for addition
+void turingMachineAddition(char *tape) {
+    int i, length = strlen(tape);
+
+    // Find the separator '0'
+    for (i = 0; i < length; i++) {
+        if (tape[i] == '0') {
+            tape[i] = '1'; // Merge second number
+            break;
+        }
+    }
+
+    // Shift remaining part of the tape left (remove extra space)
+    while (i < length - 1) {
+        tape[i] = tape[i + 1];
+        i++;
+    }
+    tape[i] = '\0'; // Null-terminate new string
+
+    // Output result
+    printf("Result after addition: %s (Unary format)\n", tape);
+    printf("Decimal Result: %d\n", (int)strlen(tape));
+}
+
+// Main function
+int main() {
+    char tape[MAX];
+
+    printf("Enter two numbers in unary format separated by 0: ");
+    scanf("%s", tape);
+
+    // Check if input is valid (only '1's and one '0')
+    int onesBeforeZero = 0, onesAfterZero = 0, zeroCount = 0;
+    for (int i = 0; tape[i] != '\0'; i++) {
+        if (tape[i] == '1') {
+            (zeroCount == 0) ? onesBeforeZero++ : onesAfterZero++;
+        } else if (tape[i] == '0') {
+            zeroCount++;
+        } else {
+            printf("Invalid input! Use only '1' and '0'.\n");
+            return 1;
+        }
+    }
+
+    if (zeroCount != 1 || onesBeforeZero == 0 || onesAfterZero == 0) {
+        printf("Invalid format! Use '111011' for (3+2).\n");
+        return 1;
+    }
+
+    // Process addition
+    turingMachineAddition(tape);
+
+    return 0;
+}
